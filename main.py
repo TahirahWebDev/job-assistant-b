@@ -34,26 +34,26 @@ app.add_middleware(
 )
 
 
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 
-if GEMINI_API_KEY:
+if OPENROUTER_API_KEY:
     try:
         external_client = AsyncOpenAI(
-            api_key=GEMINI_API_KEY,
-            base_url="https://generativelanguage.googleapis.com/v1beta/openai/"
+            api_key=OPENROUTER_API_KEY,
+            base_url="https://openrouter.ai/api/v1"
         )
 
         model = OpenAIChatCompletionsModel(
-            model="gemini-2.0-flash",
+            model="openai/gpt-4o-mini",  # Using a popular model available on OpenRouter
             openai_client=external_client
         )
 
-        logger.info("Gemini model initialized successfully.")
+        logger.info("OpenRouter model initialized successfully.")
     except Exception as e:
-        logger.error(f" Error initializing Gemini model: {e}")
+        logger.error(f" Error initializing OpenRouter model: {e}")
         model = None
 else:
-    logger.warning(" GEMINI_API_KEY not found. Running in mock mode.")
+    logger.warning(" OPENROUTER_API_KEY not found. Running in mock mode.")
     model = None
 
 config = RunConfig(model=model, tracing_disabled=True)
@@ -176,7 +176,7 @@ async def chat(req: ChatRequest, request: Request,
     if model is None:
         logger.warning(" Model not initialized, returning mock response.")
         return ChatResponse(
-            response="Gemini API key missing — using mock response. Example: 'You can improve your resume by highlighting measurable achievements.'",
+            response="API key missing — using mock response. Example: 'You can improve your resume by highlighting measurable achievements.'",
             tokens_used_estimate=0,
             tokens_remaining=CREDITS[user_id]["tokens_left"]
         )
